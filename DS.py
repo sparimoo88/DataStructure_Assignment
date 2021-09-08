@@ -1,105 +1,63 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import sys
-time_table_dict = {}
-counter = 0
-number_of_guards = 0
-time_start = 0
-time_end = 0
-min_hours = 0
-min_hours_guards = None
-new_dict = {}
-input_file = open('/Users/sukarmaparimoo/Documents/Studies/CMU/DataStructures/InputFiles/3.in')
-
-
-# In[ ]:
-
-
-number_of_guards = int(input_file.readline())
-counter = counter + 1
+input_file = open("/Users/sukarmaparimoo/Documents/Studies/CMU/DataStructures/InputFiles/10.in")
+number_of_guards = input_file.readline()
+number_of_guards = int(number_of_guards)
 #print(number_of_guards)
-#print(counter)
-
-
-# In[ ]:
-
+guard_timestamps = []
 
 for x in input_file:
     #print(x)
-    time_start, time_end = x.split()
-    time_start = int(time_start)
-    time_end = int(time_end)
-    #print(time_start, time_end)
-    
-    for start_time in range(time_start, time_end):
-        if start_time in time_table_dict:
-            time_table_dict[start_time] = [] 
-        else :
-            time_table_dict[start_time] = [counter]
-        #print (time_table_dict[start_time])
-    counter = counter + 1
-#print(time_table_dict)
+    (start_time, end_time) = x.split()
+    start_time = int(start_time)
+    end_time = int(end_time)
+    list1 = [start_time,end_time]
+    guard_timestamps.append(list1)
 
-
-# In[ ]:
-
-
-for time_start in time_table_dict:
-    #print(time_start,time_table_dict[time_start])
-    if len(time_table_dict[time_start]) == 1:
-        value_in_new_dict = time_table_dict[time_start][0]
-        if value_in_new_dict in new_dict:
-            new_dict[value_in_new_dict] = new_dict[value_in_new_dict] + 1
-        else :
-            new_dict[value_in_new_dict] = 1
-#print(new_dict)
-
-
-# In[ ]:
-
-
-for guards in range(1,(number_of_guards+1)):
-    if guards not in new_dict:
-        min_hours_guards = guards
-        min_hours = 0
-        break
+guard_timestamps.sort()
+#print(guard_timestamps[:11])
+#print(len(guard_timestamps))
+total_coverage = 0
+alone_time = {}
+previous = None
+previous_index = 0
+for index,time_range in enumerate(guard_timestamps):
+    if index == 0:
+        coverage = int((time_range[1]) - time_range[0])
+        #print(coverage)
+        total_coverage = coverage
+        alone_time[index] = coverage
     else:
-        if new_dict[guards] < min_hours or min_hours_guards == None:
-            min_hours = new_dict[guards]
-            min_hours_guards = guards
+        #previous = guard_timestamps[index-1]
+        #print(time_range,guard_timestamps[index-1])
+        if alone_time[index-1] > 0:
+            previous = guard_timestamps[index-1]
+            previous_index = index-1
+        if (previous[1] > time_range[0]) and (time_range[1] > previous[1]):
+            coverage = int((time_range[1]) - previous[1])
+            #print(time_range[1])
+            #print(previous[1])
+            #print(coverage)
+            total_coverage = total_coverage + coverage
+            overlap = int(previous[1]-time_range[0])
+            alone_time[index] = coverage
+            if overlap <= alone_time[previous_index]:
+                alone_time[previous_index] = int(alone_time[previous_index] - overlap)
+            else:
+                print(time_range,previous,alone_time[previous_index],overlap,coverage)
+        elif (previous[1] > time_range[0]) and (time_range[1] < previous[1]):
+            overlap = int(time_range[1] - time_range[0])
+            alone_time[index] = 0
+            #if alone_time[index-1]:
+                #alone_time[index - 1] = int(alone_time[index - 1] - overlap)
+        else:
+            coverage = int((time_range[1]) - time_range[0])
+            total_coverage = total_coverage + coverage
+            alone_time[index] = coverage
 
-total_coverage = len(time_table_dict)
-max_coverage = total_coverage - min_hours
-sys.stdout = open('/Users/sukarmaparimoo/Documents/Studies/CMU/DataStructures/OutputFiles/1.out','wt')
-print("Guard no.%s"% min_hours_guards,"Solo min hours %s" % min_hours)
-print("Fired %s" % min_hours_guards)
+#print(total_coverage)
+#print(alone_time)
+min_alone_time = min(alone_time.values())
+#print(min_alone_time)
+max_coverage = total_coverage - min_alone_time
+sys.stdout = open('/Users/sukarmaparimoo/Documents/Studies/CMU/DataStructures/OutputFiles/10.out','wt')
 print(max_coverage)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
